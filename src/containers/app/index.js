@@ -3,7 +3,7 @@ import { Route, Link } from 'react-router-dom'
 import Home from '../home'
 import About from '../about'
 import logo from '../../logo.svg';
-import '../../App.css';
+import '../../css/App.css';
 
 const App = () => (
     <div className="App">
