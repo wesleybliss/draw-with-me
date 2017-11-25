@@ -32,3 +32,5 @@ docs
 !.env.sample
 
 public/
+
+**/*.css
