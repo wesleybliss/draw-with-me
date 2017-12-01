@@ -1,7 +1,9 @@
 {
-    "plugins": [
-        "react",
+    "presets": [
         "es2015",
+        "react"
+    ],
+    "plugins": [
         "transform-react-pug",
         "transform-react-jsx"
     ]
