@@ -1,0 +1,8 @@
+{
+    "plugins": [
+        "react",
+        "es2015",
+        "transform-react-pug",
+        "transform-react-jsx"
+    ]
+}

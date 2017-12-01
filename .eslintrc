@@ -1,0 +1,19 @@
+{
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:react-pug/all"
+    ],
+    "plugins": [
+        "react",
+        "react-pug"
+    ],
+    "globals": {
+        "pug": true
+    },
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    }
+}

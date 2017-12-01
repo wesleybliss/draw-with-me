@@ -2,6 +2,16 @@
   "name": "draw-with-me",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "start": "npm-run-all -p watch:css start:js",
+    "build": "npm-run-all build:css build:js",
+    "start:js": "react-scripts start",
+    "build:js": "react-scripts build",
+    "build:css": "stylus src/styles/ -o src/css/",
+    "watch:css": "npm run build:css && stylus-chokidar -w src/styles/ -o src/css/",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
   "dependencies": {
     "npm-run-all": "^4.1.2",
     "react": "^16.1.1",
@@ -15,14 +25,11 @@
     "stylus": "^0.54.5",
     "stylus-chokidar": "0.0.3"
   },
-  "scripts": {
-    "start": "npm-run-all -p watch:css start:js",
-    "build": "npm-run-all build:css build:js",
-    "start:js": "react-scripts start",
-    "build:js": "react-scripts build",
-    "build:css": "stylus src/styles/ -o src/css/",
-    "watch:css": "npm run build:css && stylus-chokidar -w src/styles/ -o src/css/",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+  "devDependencies": {
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-plugin-transform-react-pug": "^3.2.0",
+    "eslint": "^4.12.1",
+    "eslint-plugin-react": "^7.5.1",
+    "eslint-plugin-react-pug": "0.0.6"
   }
 }
