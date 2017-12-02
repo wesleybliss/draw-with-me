@@ -2,6 +2,7 @@ import React from 'react';
 import { Route, Link } from 'react-router-dom'
 import Home from '../home'
 import About from '../about'
+import Chat from '../chat'
 import logo from '../../logo.svg';
 import '../../css/App.css';
 
@@ -21,6 +22,7 @@ const App = () => (
         <main>
             <Route exact path="/" component={Home} />
             <Route exact path="/about-us" component={About} />
+            <Route exact path="/chat" component={Chat} />
         </main>
     </div>
 )
