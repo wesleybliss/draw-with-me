@@ -1,0 +1,17 @@
+{
+  "name": "draw-with-me-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TODO",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Wesley Bliss <wesley.bliss@gmail.com> (https://wesleybliss.com)",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^2.3.0",
+    "moment": "^2.19.3",
+    "ws": "^3.3.2"
+  }
+}

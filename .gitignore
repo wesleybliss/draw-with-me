@@ -34,3 +34,6 @@ docs
 public/
 
 **/*.css
+
+# @todo ignored for now, maybe add later
+server/sample/
