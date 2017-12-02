@@ -14,7 +14,7 @@ render(
     pug`
         Provider(store = store)
             ConnectedRouter(history = history)
-                ${ () => {<App />} }
+                App
     `,
     target
 )
