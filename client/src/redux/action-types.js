@@ -39,6 +39,14 @@ export const SET_WS_ERROR = 'SET_WS_ERROR'
 export const SET_NICKNAME = 'SET_NICKNAME'
 
 /**
+ * Roster of connected users
+ * Note: here we do a full replace - may not be very efficient,
+ *       but seeing as this is an MVP, we shouldn't have too many users at once
+ * @type {String}
+ */
+export const SET_ROSTER = 'SET_ROSTER'
+
+/**
  * Add entry to conversation history
  * @type {String}
  */

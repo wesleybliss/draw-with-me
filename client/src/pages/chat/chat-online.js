@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import * as appActions from '../../redux/actions/app'
 import * as chatActions from '../../redux/actions/chat'
 import { chatSelector } from '../../redux/selectors'
+import { push } from 'react-router-redux'
 
 const mapStateToProps = state => {
     return {
@@ -31,13 +32,36 @@ class ChatOnline extends Component {
     entryClassName = entry => 'nickname-' +
         (entry.incoming ? 'incoming' : 'outgoing')
     
+    rosterToList = () =>
+        this.props.chat.roster
+            .map((entry, index) => pug`
+                li.list-group-item(key = index.toString())
+                    | ${entry.nickname} 
+                    | ${entry.nickname === this.props.chat.nickname
+                            ? '*' : ''}
+                `)
+    
     historyToList = () =>
         this.props.chat.history
-            .map((entry, index) => pug`
-                 li.list-group-item(key = index.toString())
-                    b(className = this.entryClassName(entry))
-                        |${entry.nickname}: 
-                    span ${entry.message}`)
+            .map((entry, index) => {
+                
+                let { nickname, message } = entry
+                
+                if (nickname.startsWith('__system__')) {
+                    nickname = pug``
+                }
+                else {
+                    nickname = pug`
+                        b(className = this.entryClassName(entry))
+                            | ${nickname}: `
+                }
+                
+                return pug`
+                    li.list-group-item(key = index.toString())
+                        =${nickname}
+                        span ${entry.message}`
+                
+            })
     
     handleChangePendingMessage = e =>
         this.setState({ pendingMessage: e.target.value })
@@ -82,8 +106,11 @@ class ChatOnline extends Component {
             })
         
         ws.onmessage = event => {
+            
             console.info('WS', 'Message:', event.data)
+            
             let data = null
+            
             try {
                 data = JSON.parse(event.data)
             }
@@ -93,11 +120,33 @@ class ChatOnline extends Component {
                 // @todo Better error reporting
                 return window.alert('Error adding incoming message to history')
             }
+            
+            if (data.request && data.request === 'IDENT')
+                return
+            
+            if (data.roster)
+                return this.props.actions.setRoster(data.roster)
+            
             this.props.actions.addHistory({
                 incoming: data.nickname === this.props.chat.nickname,
                 ...data
             })
+            
         }
+        
+        // Identify
+        // @todo Kinda UDP here, not waiting for confirmation
+        console.info('WS', 'Identifying as', this.props.chat.nickname)
+        ws.send(JSON.stringify({
+            request: 'IDENT',
+            data: this.props.chat.nickname
+        }))
+        
+        // Request list of connected users
+        console.info('WS', 'Requesting roster', { request: 'roster' })
+        ws.send(JSON.stringify({
+            request: 'roster'
+        }))
         
     }
     
@@ -113,12 +162,19 @@ class ChatOnline extends Component {
         const chatView = pug`
             .row
                 .col
-                    p Chatting as ${ nickname }.
+                    p
+                        | Chatting as ${ nickname }. 
+                        button.btn.d-inline(onClick = () => window.location.reload()) ↻
             
             .row
                 .col-6
+                    h5 Conversation History
                     ul#chat-history.list-group
                         =${ this.historyToList() }
+                .col-4
+                    h5 Users In This Chat
+                    ul.list-group
+                        =${ this.rosterToList() }
             
             .row.mt-2
                 .col-6
@@ -153,6 +209,7 @@ ChatOnline.propTypes = {
         wsError: PropTypes.object,
         started: PropTypes.bool.isRequired,
         nickname: PropTypes.string.isRequired,
+        roster: PropTypes.array.isRequired,
         history: PropTypes.array.isRequired
     })
 }

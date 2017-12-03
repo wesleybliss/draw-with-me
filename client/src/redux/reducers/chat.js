@@ -3,6 +3,7 @@ import {
     SET_WS,
     SET_WS_ERROR,
     SET_NICKNAME,
+    SET_ROSTER,
     ADD_HISTORY
 } from '../action-types'
 
@@ -11,6 +12,7 @@ const initialState = {
     wsError: null,
     started: false,
     nickname: '',
+    roster: [],
     history: []
 }
 
@@ -40,6 +42,12 @@ const chat = (state = initialState, { type, payload }) => {
             return {
                 ...state,
                 nickname: payload
+            }
+        
+        case SET_ROSTER:
+            return {
+                ...state,
+                roster: payload
             }
         
         case ADD_HISTORY:
