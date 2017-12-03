@@ -46,6 +46,19 @@ class ChatOnline extends Component {
             .map((entry, index) => {
                 
                 let { nickname, message } = entry
+                let alignedClasses = 'justify-content-end flex-column'
+                
+                if (entry.incoming === null)
+                    alignedClasses += ' system'
+                
+                if (entry.incoming !== null)
+                    alignedClasses += ' w-75'
+                
+                if (entry.incoming === false)
+                    alignedClasses += ' align-self-end'
+                
+                if (entry.incoming === true)
+                    alignedClasses += ' incoming'
                 
                 if (nickname.startsWith('__system__')) {
                     nickname = pug``
@@ -57,7 +70,10 @@ class ChatOnline extends Component {
                 }
                 
                 return pug`
-                    li.list-group-item(key = index.toString())
+                    li.list-group-item.d-flex(
+                        key = index.toString(),
+                        className = alignedClasses
+                    )
                         =${nickname}
                         span ${entry.message}`
                 
@@ -167,7 +183,7 @@ class ChatOnline extends Component {
                         button.btn.d-inline(onClick = () => window.location.reload()) ↻
             
             .row
-                .col-6
+                .col-8
                     h5 Conversation History
                     ul#chat-history.list-group
                         =${ this.historyToList() }
@@ -177,7 +193,7 @@ class ChatOnline extends Component {
                         =${ this.rosterToList() }
             
             .row.mt-2
-                .col-6
+                .col-8
                     form(onSubmit = this.handleSendMessage)
                         .form-group
                             input.form-control(

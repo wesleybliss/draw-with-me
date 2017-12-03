@@ -1,7 +1,8 @@
 
 #chat-history
+    
     padding-right 10px
-    height 600px
+    height 500px
     min-height @height
     max-height @height
     overflow-x hidden
@@ -9,7 +10,25 @@
     // border 1px solid #ccc
     
     li
+        
+        margin 6px 0
+        font-size 0.9rem
         word-wrap break-word
+        border-radius 0.50rem !important
+        
+        &.system
+            border none
+            color lighten(black, 50%)
+            background-color darken(white, 4%)
+            font-family monospace
+            font-weight bold
+            text-transform uppercase
+        
+        &.incoming
+            background-color alpha(red, 3%)
+        
+        &:not(.incoming, .system)
+            background-color alpha(blue, 3%)
         
         .nickname-incoming
             color saturation(red, 60%)

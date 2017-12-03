@@ -10,21 +10,27 @@ const socketOpts = {
 
 process.title = 'node-chat'
 
+// Logging
+const _ = (...args) => console.log.apply(console, args)
+const _l = _
+const _d = (...args) => _(chalk.green(    'DEBUG'), ...args)
+const _i = (...args) => _(chalk.cyan(     'INFO '), ...args)
+const _w = (...args) => _(chalk.yellow(   'WARN '), ...args)
+const _e = (...args) => _(chalk.red(      'ERROR'), ...args)
+const _f = (...args) => _(chalk.magenta(  'WTF!?'), ...args)
+
 let clients = []
 let history = []
 
-// Array with some colors
-let colors = [ 'red', 'green', 'blue', 'magenta', 'purple', 'plum', 'orange' ]
-// ... in random order
-colors.sort((a, b) => Math.random() > 0.5)
-
 const wss = new WebSocket.Server(socketOpts, () =>
-    console.info(chalk.blue(`Listening on wss://${socketOpts.host}:${socketOpts.port}`)))
+    _i(chalk.blue(`Listening on wss://${socketOpts.host}:${socketOpts.port}`)))
 
 wss.broadcast = data => {
     wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN)
-          client.send(data)
+            client.send(
+                (typeof data !== 'object')
+                    ? data : JSON.stringify(data))
     })
 }
 
@@ -37,22 +43,20 @@ const getRoster = () => {
 const broadcastRoster = () => {
     
     // Get users (excluding no-IDENT users)
-    const users = getRoster()
+    const roster = getRoster()
         .filter(u => !u.nickname.startsWith('__system__'))
     
-    console.info(chalk.yellow('OUTGOING'),
-        'Roster (' + users.length, 'users)')
+    _i(chalk.yellow('OUTGOING'),
+        'Roster (' + roster.length, 'users)')
     
-    return wss.broadcast(JSON.stringify({
-        roster: users
-    }))
+    return wss.broadcast({ roster })
     
 }
 
 wss.on('connection', ws => {
     
     // console.info('Connection from', ws)
-    console.info('Client connected')
+    _i('Client connected')
     
     // Initially we don't know who this user
     // is until they identify themselves
@@ -71,13 +75,13 @@ wss.on('connection', ws => {
     
     ws.on('message', message => {
         
-        console.info(chalk.green('INCOMING'), message)
+        _i(chalk.green('INCOMING'), message)
         
         try {
             message = JSON.parse(message)
         }
         catch (e) {
-            console.warn(e)
+            _w(e)
             return ws.send(JSON.stringify({
                 error: 'Malformed payload - could not parse'
             }))
@@ -101,23 +105,23 @@ wss.on('connection', ws => {
             switch (message.request) {
                 case 'roster':
                     const users = getRoster()
-                    console.info(chalk.yellow('OUTGOING'),
-                        'Roster (' + users.length, 'users)')
+                    _i(chalk.yellow('OUTGOING'), 'Roster (' + users.length, 'users)')
                     return ws.send(JSON.stringify({
                         roster: users
                     }))
             }
         }
         
-        console.info(chalk.yellow('BROADCAST'), JSON.stringify(message))
+        _i(chalk.yellow('BROADCAST'), JSON.stringify(message))
         // For now, broadcast to everyone - even the client that sent the message,
         // which will act as a soft-ACK, confirming the server received it
-        wss.clients.forEach(client => {
-            if (/*client !== ws &&*/ client.readyState === WebSocket.OPEN)
+        /*wss.clients.forEach(client => {
+            if (client !== ws && client.readyState === WebSocket.OPEN)
                 client.send(
                     (typeof message !== 'object')
                         ? message : JSON.stringify(message))
-        })
+        })*/
+        wss.broadcast(message)
         
     })
     
