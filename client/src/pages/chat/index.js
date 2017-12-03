@@ -10,8 +10,6 @@ import { onlineSelector, chatSelector } from '../../redux/selectors'
 import ChatOnline from './chat-online'
 import ChatOffline from './chat-offline'
 
-console.log('appActions', appActions)
-
 const mapStateToProps = (state/*, ownProps*/) => {
     return {
         online: onlineSelector(state),

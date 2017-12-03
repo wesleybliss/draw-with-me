@@ -14,6 +14,8 @@ const template = pug`
                         span.sr-only (current)
                 li.nav-item
                     Link.nav-link(to="/chat") Chat
+                li.nav-item
+                    Link.nav-link(to="/draw") Draw
                 //- li.nav-item.dropdown
                     a#navbarDropdown.nav-link.dropdown-toggle(href="#", role="button", data-toggle="dropdown", aria-haspopup="true", aria-expanded="false")
                         | Dropdown
