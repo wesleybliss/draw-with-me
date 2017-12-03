@@ -54,7 +54,8 @@ class Chat extends Component {
     
     componentDidMount() {
         
-        // this.props.actions.setOnline(true)
+        if (this.props.chat.nickname)
+            this.setState({ nickname: this.props.chat.nickname })
         
         window.WebSocket = window.WebSocket || window.MozWebSocket
         
@@ -74,19 +75,12 @@ class Chat extends Component {
             this.props.actions.setWsError(err)
         }
         
-        ws.onmessage = data => {
-            console.info('WS', 'Message:', data)
-            // @todo
-        }
-        
     }
     
     render() {
         
         const { nickname } = this.state
         const { online, chat } = this.props
-        
-        console.log(this)
         
         const formNickname = pug`
             .row
@@ -115,7 +109,7 @@ class Chat extends Component {
                     ${ online && !chat.started && pug`=formNickname` }
                     ${ online && chat.started && pug`ChatOnline` }
             
-            .row
+            //- .row
                 .col
                     pre: code ${ JSON.stringify({
                         state: this.state,
@@ -131,7 +125,7 @@ class Chat extends Component {
 Chat.propTypes = {
     online: PropTypes.bool.isRequired,
     chat: PropTypes.shape({
-        ws: PropTypes.object.isRequired,
+        ws: PropTypes.object,
         wsError: PropTypes.object,
         started: PropTypes.bool.isRequired,
         nickname: PropTypes.string.isRequired
