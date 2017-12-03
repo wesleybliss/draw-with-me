@@ -6,6 +6,7 @@ import * as appActions from '../../redux/actions/app'
 import * as chatActions from '../../redux/actions/chat'
 import { chatSelector } from '../../redux/selectors'
 import { push } from 'react-router-redux'
+import * as Payloads from './payloads'
 
 const mapStateToProps = state => {
     return {
@@ -86,23 +87,15 @@ class ChatOnline extends Component {
         
         if (e && e.preventDefault) e.preventDefault()
         
-        console.log('handleSendMessage', this.state.pendingMessage)
-        
+        const { ws } = this.props.chat
         const { nickname } = this.props.chat
         const { pendingMessage } = this.state
         
-        if (!pendingMessage || pendingMessage.length < 1) {
-            console.warn('handleSendMessage', 'Message is empty')
-            return false
-        }
-        
-        const payload = {
-            nickname,
-            message: pendingMessage
-        }
+        if (!pendingMessage || pendingMessage.length < 1)
+            return console.warn('handleSendMessage', 'Message is empty')
         
         // @todo Not sure how to error check if the message actually sent
-        this.props.chat.ws.send(JSON.stringify(payload))
+        ws.send(Payloads.NewMessage(nickname, pendingMessage))
         
         // Clear the message input
         this.setState({ pendingMessage: '' })
@@ -153,16 +146,26 @@ class ChatOnline extends Component {
         // Identify
         // @todo Kinda UDP here, not waiting for confirmation
         console.info('WS', 'Identifying as', this.props.chat.nickname)
-        ws.send(JSON.stringify({
-            request: 'IDENT',
-            data: this.props.chat.nickname
-        }))
+        ws.send(Payloads.Ident(this.props.chat.nickname))
         
         // Request list of connected users
         console.info('WS', 'Requesting roster', { request: 'roster' })
-        ws.send(JSON.stringify({
-            request: 'roster'
-        }))
+        ws.send(Payloads.Roster())
+        
+        // Keep convo scrolled to bottom
+        // @todo This prevents user from scrolling - needs override
+        window.setInterval(() => {
+            try {
+                // If browser supports smooth scroll, use that
+                this.refs.chatHistory
+                    .childNodes[ch.childNodes.length - 1]
+                    .scrollIntoView({ behavior: 'smooth' })
+            }
+            catch (e) {
+                // Otherwise jump right to the end
+                this.refs.chatHistory.scrollTop = this.refs.chatHistory.scrollHeight
+            }
+        }, 1000)
         
     }
     
@@ -185,7 +188,7 @@ class ChatOnline extends Component {
             .row
                 .col-8
                     h5 Conversation History
-                    ul#chat-history.list-group
+                    ul#chat-history.list-group(ref = "chatHistory")
                         =${ this.historyToList() }
                 .col-4
                     h5 Users In This Chat

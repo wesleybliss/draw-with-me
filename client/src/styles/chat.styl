@@ -1,15 +1,18 @@
 
 #chat-history
     
-    padding-right 10px
+    padding 10px
     height 500px
     min-height @height
     max-height @height
     overflow-x hidden
     overflow-y scroll
-    // border 1px solid #ccc
+    border 1px solid #eee
     
     li
+        
+        // b/c they're flex, they'll keep shrinking
+        min-height 65px
         
         margin 6px 0
         font-size 0.9rem
@@ -17,6 +20,7 @@
         border-radius 0.50rem !important
         
         &.system
+            min-height 44px
             border none
             color lighten(black, 50%)
             background-color darken(white, 4%)
