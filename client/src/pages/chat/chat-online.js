@@ -4,12 +4,13 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as appActions from '../../redux/actions/app'
 import * as chatActions from '../../redux/actions/chat'
-import { chatSelector } from '../../redux/selectors'
+import { onlineSelector, chatSelector } from '../../redux/selectors'
 import { push } from 'react-router-redux'
 import * as Payloads from './payloads'
 
 const mapStateToProps = state => {
     return {
+        online: onlineSelector(state),
         chat: chatSelector(state)
     }
 }
@@ -17,6 +18,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         actions: {
+            ...bindActionCreators(appActions, dispatch),
             ...bindActionCreators(chatActions, dispatch)
         }
     }
@@ -27,7 +29,28 @@ class ChatOnline extends Component {
     displayName: 'ChatOnline'
     
     state = {
+        reconnectTimeout: 3 * 1000, // Seconds
+        reconnectTimer: -1,
+        keepAliveTimeout: 5 * 1000, // Seconds
+        keepAliveTimer: -1,
+        pingPongTimeout: 4 * 1000,
+        pingPongTimer: -1,
         pendingMessage: ''
+    }
+    
+    connectionTimeout = () => {
+        console.warn('Connection timed out', this.props)
+        this.props.actions.setOnline(false)
+        if (this.state.reconnectTimer < 1)
+            this.state.reconnectTimer = window.setInterval(() => {
+                if (this.props.online) {
+                    console.info('Connection restored')
+                    this.props.actions.setOnline(true)
+                    return window.clearInterval(this.state.reconnectTimer)
+                }
+                console.info('Trying to reconnect')
+                this.props.reconnect()
+            }, this.state.reconnectTimeout)
     }
     
     entryClassName = entry => 'nickname-' +
@@ -118,6 +141,14 @@ class ChatOnline extends Component {
             
             console.info('WS', 'Message:', event.data)
             
+            if (event.data === 'PONG') {
+                window.clearTimeout(this.state.keepAliveTimer)
+                if (!this.props.online) this.props.actions.setOnline(true)
+                this.state.keepAliveTimer = window.setTimeout(
+                    this.connectionTimeout.bind(this), this.state.keepAliveTimeout)
+                return
+            }
+            
             let data = null
             
             try {
@@ -163,9 +194,23 @@ class ChatOnline extends Component {
             }
             catch (e) {
                 // Otherwise jump right to the end
-                this.refs.chatHistory.scrollTop = this.refs.chatHistory.scrollHeight
+                try {
+                    this.refs.chatHistory.scrollTop = this.refs.chatHistory.scrollHeight
+                }
+                catch (e) {}
             }
         }, 1000)
+        
+        // Keepalive
+        this.state.keepAliveTimer = window.setTimeout(
+            this.connectionTimeout.bind(this), this.state.keepAliveTimeout)
+        
+        // Pingpong (force this to be 1s less than keepalive check)
+        this.state.pingPongTimeout = this.state.keepAliveTimeout - 1000
+        this.state.pingPongTimer = window.setInterval(() => {
+            // console.info('PING')
+            this.props.chat.ws.send('PING')
+        }, this.state.pingPongTimeout)
         
     }
     

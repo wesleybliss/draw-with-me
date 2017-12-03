@@ -2,6 +2,7 @@
 
 const chalk = require('chalk')
 const WebSocket = require('ws')
+const Payloads = require('./payloads')
 
 const socketOpts = {
     host: process.env.HOST || '0.0.0.0',
@@ -59,10 +60,11 @@ const validUser = ws => {
         !ws.user.nickname.startsWith('__system__'))
         return true
     
-    ws.send(JSON.stringify({
+    /*ws.send(JSON.stringify({
         error: 'NOIDENT',
         message: 'You must identify yourself'
-    }))
+    }))*/
+    ws.send(Payloads.NoIdent())
     
     return false
     
@@ -78,9 +80,10 @@ const handleIdent = (ws, data) => {
 const handleRoster = (ws, data) => {
     const users = getRoster()
     _i(chalk.yellow('OUTGOING'), 'Roster (' + users.length, 'users)')
-    ws.send(JSON.stringify({
+    /*ws.send(JSON.stringify({
         roster: users
-    }))
+    }))*/
+    ws.send(Payloads.Roster(users))
 }
 
 const handleChat = (ws, event, data) => {
@@ -105,9 +108,10 @@ const handleChat = (ws, event, data) => {
     }
     
     _w('Unsupported chat event', event)
-    return ws.send(JSON.stringify({
+    /*return ws.send(JSON.stringify({
         error: `Unsupported chat event ${event}`
-    }))
+    }))*/
+    ws.send(Payloads.UnsupportedChatEvent)
     
 }
 
@@ -133,23 +137,31 @@ wss.on('connection', ws => {
     
     ws.on('message', message => {
         
+        // Keepalive (not logged)
+        if (message === 'PING')
+            return ws.send('PONG')
+        
         _i(chalk.green('INCOMING'), message)
         
+        // Try parsing the payload - must be valid JSON
+        // @todo Eventually migrate to MessagePack
         try {
             message = JSON.parse(message)
         }
         catch (e) {
             _w(e)
-            return ws.send(JSON.stringify({
+            /*return ws.send(JSON.stringify({
                 error: 'Malformed payload - could not parse'
-            }))
+            }))*/
+            return ws.send(Payloads.MalformedPayload())
         }
         
         if (!message.event || !message.event.includes('.')) {
             _w('Malformed message')
-            return ws.send(JSON.stringify({
+            /*return ws.send(JSON.stringify({
                 error: 'Malformed payload - must have "event" key'
-            }))
+            }))*/
+            return ws.send(Payloads.MalformedMissingEvent())
         }
         
         let eventParts = message.event.split('.')
@@ -162,46 +174,10 @@ wss.on('connection', ws => {
         }
         
         _w('Unsupported event', type, event)
-        return ws.send(JSON.stringify({
+        /*return ws.send(JSON.stringify({
             error: `Unsupported event ${type} ${event}`
-        }))
-        
-        
-        
-        
-        
-        
-        // IDENT request
-        if (message.request && message.request === 'IDENT')
-            return handleIdent(ws, message)
-        
-        if (!ws.user.nickname || ws.user.nickname.startsWith('__system__'))
-            return ws.send(JSON.stringify({
-                error: 'NOIDENT',
-                message: 'You must identify yourself'
-            }))
-        
-        if (message.request) {
-            switch (message.request) {
-                case 'roster':
-                    const users = getRoster()
-                    _i(chalk.yellow('OUTGOING'), 'Roster (' + users.length, 'users)')
-                    return ws.send(JSON.stringify({
-                        roster: users
-                    }))
-            }
-        }
-        
-        _i(chalk.yellow('BROADCAST'), JSON.stringify(message))
-        // For now, broadcast to everyone - even the client that sent the message,
-        // which will act as a soft-ACK, confirming the server received it
-        /*wss.clients.forEach(client => {
-            if (client !== ws && client.readyState === WebSocket.OPEN)
-                client.send(
-                    (typeof message !== 'object')
-                        ? message : JSON.stringify(message))
-        })*/
-        wss.broadcast(message)
+        }))*/
+        return ws.send(Payloads.UnsupportedEvent(type, event))
         
     })
     

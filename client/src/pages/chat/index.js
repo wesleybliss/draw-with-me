@@ -31,7 +31,41 @@ class Chat extends Component {
     displayName: 'Chat'
     
     state = {
+        reconnectInterval: 3 * 1000,
+        reconnectTimer: -1,
         nickname: ''
+    }
+    
+    connectWs = () => {
+        
+        console.info('connectWs')
+        
+        window.WebSocket = window.WebSocket || window.MozWebSocket
+        
+        if (!window.WebSocket)
+            return window.alert('It looks like your browser doesn\'t support WebSockets =(')
+        
+        const ws = new WebSocket('ws://0.0.0.0:8080')
+        this.props.actions.setWs(ws)
+        
+        ws.onopen = (e) => {
+            console.info('WS', 'Connected', e)
+            if (ws.readyState === 1) {
+                console.info('WS', 'Connected, online')
+                window.clearInterval(this.state.reconnectTimer)
+                this.props.actions.setWsError(null)
+                this.props.actions.setOnline(true)
+            }
+        }
+        
+        ws.onerror = err => {
+            console.error('WS', err)
+            this.props.actions.setWsError(err)
+            if (this.state.reconnectTimer < 1)
+                this.state.reconnectTimer = window.setInterval(
+                    this.connectWs, this.state.reconnectInterval)
+        }
+        
     }
     
     validateNickname = () =>
@@ -61,23 +95,7 @@ class Chat extends Component {
         if (this.props.chat.nickname)
             this.setState({ nickname: this.props.chat.nickname })
         
-        window.WebSocket = window.WebSocket || window.MozWebSocket
-        
-        if (!window.WebSocket)
-            return window.alert('It looks like your browser doesn\'t support WebSockets =(')
-        
-        const ws = new WebSocket('ws://0.0.0.0:8080')
-        this.props.actions.setWs(ws)
-        
-        ws.onopen = () => {
-            console.info('WS', 'Connected')
-            this.props.actions.setOnline(true)
-        }
-        
-        ws.onerror = err => {
-            console.error('WS', err)
-            this.props.actions.setWsError(err)
-        }
+        this.connectWs()
         
     }
     
@@ -112,7 +130,7 @@ class Chat extends Component {
                 .col
                     ${ !online && pug`ChatOffline` }
                     ${ online && !chat.started && pug`=formNickname` }
-                    ${ online && chat.started && pug`ChatOnline` }
+                    ${ online && chat.started && pug`ChatOnline(reconnect = this.connectWs)` }
             
             //- .row
                 .col
