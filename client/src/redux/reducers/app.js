@@ -1,23 +1,21 @@
 import {
-    SET_STATUS
+    SET_ONLINE
 } from '../action-types'
 
-const app = (state = [], action) => {
+const initialState = {
+    online: false,
+    nickname: null
+}
+
+const app = (state = initialState, { type, payload }) => {
     
-    switch (action.type) {
+    switch (type) {
         
-        case SET_STATUS:
-            return [
+        case SET_ONLINE:
+            return {
                 ...state,
-                action.status
-            ]
-        
-        /*case 'TOGGLE_TODO':
-            return state.map(todo =>
-                (todo.id === action.id) 
-                    ? {...todo, completed: !todo.completed}
-                    : todo
-            )*/
+                online: payload
+            }
         
         default:
             return state

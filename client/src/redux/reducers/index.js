@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux'
 import app from './app'
+import chat from './chat'
 
-const state = combineReducers({
-    app
+const rootReducer = combineReducers({
+    app,
+    chat
 })
 
-export default state
+export default rootReducer
