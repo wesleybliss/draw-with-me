@@ -43,7 +43,8 @@ class ChatOnline extends Component {
         this.props.actions.setOnline(false)
         if (this.state.reconnectTimer < 1)
             this.state.reconnectTimer = window.setInterval(() => {
-                if (this.props.online) {
+                if (this.props.online === true &&
+                    this.props.chat.ws.readyState < 2) {
                     console.info('Connection restored')
                     this.props.actions.setOnline(true)
                     return window.clearInterval(this.state.reconnectTimer)
@@ -142,10 +143,11 @@ class ChatOnline extends Component {
             console.info('WS', 'Message:', event.data)
             
             if (event.data === 'PONG') {
+                console.log('Clearing this.state.keepAliveTimer', this.state.keepAliveTimer)
                 window.clearTimeout(this.state.keepAliveTimer)
                 if (!this.props.online) this.props.actions.setOnline(true)
                 this.state.keepAliveTimer = window.setTimeout(
-                    this.connectionTimeout.bind(this), this.state.keepAliveTimeout)
+                    this.connectionTimeout, this.state.keepAliveTimeout)
                 return
             }
             
@@ -202,15 +204,21 @@ class ChatOnline extends Component {
         }, 1000)
         
         // Keepalive
-        this.state.keepAliveTimer = window.setTimeout(
-            this.connectionTimeout.bind(this), this.state.keepAliveTimeout)
+        if (this.state.keepAliveTimer < 1)
+            this.state.keepAliveTimer = window.setTimeout(
+                this.connectionTimeout.bind(this), this.state.keepAliveTimeout)
         
         // Pingpong (force this to be 1s less than keepalive check)
         this.state.pingPongTimeout = this.state.keepAliveTimeout - 1000
-        this.state.pingPongTimer = window.setInterval(() => {
-            // console.info('PING')
+        if (this.state.pingPongTimer < 1)
+            this.state.pingPongTimer = window.setInterval(() => {
+                // console.info('PING')
+                if (this.props.chat.ws.readyState === 1)
+                    this.props.chat.ws.send('PING')
+            }, this.state.pingPongTimeout)
+        
+        if (this.props.chat.ws.readyState === 1)
             this.props.chat.ws.send('PING')
-        }, this.state.pingPongTimeout)
         
     }
     

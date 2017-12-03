@@ -9,8 +9,6 @@ const socketOpts = {
     port: process.env.PORT || 8080
 }
 
-process.title = 'node-chat'
-
 // Logging
 const _ = (...args) => console.log.apply(console, args)
 const _l = _
@@ -19,6 +17,10 @@ const _i = (...args) => _(chalk.cyan(     'INFO '), ...args)
 const _w = (...args) => _(chalk.yellow(   'WARN '), ...args)
 const _e = (...args) => _(chalk.red(      'ERROR'), ...args)
 const _f = (...args) => _(chalk.magenta(  'WTF!?'), ...args)
+
+process.title = 'node-chat'
+process.on('exit', () => _i('Process exited'))
+process.stdout.on('error', _e)
 
 let clients = []
 let history = []
@@ -133,6 +135,10 @@ wss.on('connection', ws => {
     ws.on('close', (code, reason) => {
         // Update client rosters
         broadcastRoster()
+    })
+    
+    ws.on('error', (...args) => {
+        _w(...args)
     })
     
     ws.on('message', message => {

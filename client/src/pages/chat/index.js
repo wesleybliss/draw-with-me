@@ -36,34 +36,51 @@ class Chat extends Component {
         nickname: ''
     }
     
+    handleWsError = err => {
+        this.props.actions.setWsError(
+            typeof err === 'string' ? err : JSON.stringify(err))
+        if (this.state.reconnectTimer < 1)
+            this.state.reconnectTimer = window.setInterval(
+                this.connectWs, this.state.reconnectInterval)
+    }
+    
     connectWs = () => {
         
         console.info('connectWs')
+        
+        if (this.props.chat.ws && Array(0, 1, 2).includes(this.props.chat.ws.readyState))
+            return
         
         window.WebSocket = window.WebSocket || window.MozWebSocket
         
         if (!window.WebSocket)
             return window.alert('It looks like your browser doesn\'t support WebSockets =(')
         
-        const ws = new WebSocket('ws://0.0.0.0:8080')
-        this.props.actions.setWs(ws)
-        
-        ws.onopen = (e) => {
-            console.info('WS', 'Connected', e)
-            if (ws.readyState === 1) {
-                console.info('WS', 'Connected, online')
-                window.clearInterval(this.state.reconnectTimer)
-                this.props.actions.setWsError(null)
-                this.props.actions.setOnline(true)
+        try {
+            
+            const ws = new WebSocket('ws://0.0.0.0:8080')
+            this.props.actions.setWs(ws)
+            
+            ws.onopen = (e) => {
+                console.info('WS', 'Connected', e)
+                if (ws.readyState === 1) {
+                    console.info('WS', 'Connected, online')
+                    window.clearInterval(this.state.reconnectTimer)
+                    this.props.actions.setWsError(null)
+                    this.props.actions.setOnline(true)
+                }
             }
+            
+            ws.onerror = err => {
+                console.error('WS', err)
+                this.handleWsError(err)
+            }
+            
         }
-        
-        ws.onerror = err => {
-            console.error('WS', err)
-            this.props.actions.setWsError(err)
-            if (this.state.reconnectTimer < 1)
-                this.state.reconnectTimer = window.setInterval(
-                    this.connectWs, this.state.reconnectInterval)
+        catch (e) {
+            
+            this.handleWsError(e)
+            
         }
         
     }
@@ -102,7 +119,7 @@ class Chat extends Component {
     render() {
         
         const { nickname } = this.state
-        const { online, chat } = this.props
+        const { online, wsError, chat } = this.props
         
         const formNickname = pug`
             .row
@@ -126,6 +143,11 @@ class Chat extends Component {
             .row
                 .col
                     h1 Chat
+            ${ wsError && pug`
+                .row
+                    .col
+                        .alert.alert-danger ${ wsError }
+            `}
             .row
                 .col
                     ${ !online && pug`ChatOffline` }
@@ -149,7 +171,6 @@ Chat.propTypes = {
     online: PropTypes.bool.isRequired,
     chat: PropTypes.shape({
         ws: PropTypes.object,
-        wsError: PropTypes.object,
         started: PropTypes.bool.isRequired,
         nickname: PropTypes.string.isRequired
     })
