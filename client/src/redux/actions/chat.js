@@ -2,7 +2,8 @@ import {
     SET_STARTED,
     SET_WS,
     SET_WS_ERROR,
-    SET_NICKNAME
+    SET_NICKNAME,
+    ADD_HISTORY
 } from '../action-types'
 
 export const setStarted = started => dispatch => {
@@ -34,5 +35,13 @@ export const setNickname = nickname => dispatch => {
     dispatch({
         type: SET_NICKNAME,
         payload: nickname
+    })
+}
+
+export const addHistory = entry => dispatch => {
+    console.log('DISPATCH', ADD_HISTORY, `payload: ${entry}`)
+    dispatch({
+        type: ADD_HISTORY,
+        payload: entry
     })
 }

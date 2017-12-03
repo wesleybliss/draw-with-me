@@ -1,3 +1,5 @@
+import '../../styles/chat.styl'
+
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
@@ -34,16 +36,20 @@ class Chat extends Component {
         nickname: ''
     }
     
+    validateNickname = () =>
+        this.state.nickname &&
+        this.state.nickname.trim() &&
+        !Array('__system__', '__debug__', '__test__')
+            .includes(this.state.nickname)
+    
     handleFormSubmitNickname = e => {
         e.preventDefault()
-        console.log('handleFormSubmitNickname')
-        const { nickname } = this.state
-        if (!nickname || !nickname.trim()) {
+        if (!this.validateNickname()) {
             console.error('Invalid nickname')
-            return window.alert('@todo notification -- nickname can\'t be empty')
+            return window.alert('@todo notification -- invalid nickname')
         }
         // Update the store
-        this.props.actions.setNickname(nickname)
+        this.props.actions.setNickname(this.state.nickname)
         // Start the chat
         this.props.actions.setStarted(true)
         return false
@@ -89,6 +95,7 @@ class Chat extends Component {
                         .form-group
                             label(for="nickname") Nickname
                             input#nickname.form-control(
+                                ref = el => el && el.focus(),
                                 type = "text",
                                 placeholder = "",
                                 value = nickname,

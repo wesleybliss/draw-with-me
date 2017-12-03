@@ -36,7 +36,15 @@ wss.on('connection', ws => {
     ws.send('Hello')
     
     ws.on('message', message => {
+        
         console.info(chalk.green('INCOMING'), message)
+        
+        console.info(chalk.yellow('BROADCAST'), JSON.stringify(message))
+        wss.clients.forEach(client => {
+            /*if (client !== ws && client.readyState === WebSocket.OPEN)*/
+                client.send(message)
+        })
+        
     })
     
 })

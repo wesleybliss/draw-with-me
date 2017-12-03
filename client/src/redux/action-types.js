@@ -37,3 +37,9 @@ export const SET_WS_ERROR = 'SET_WS_ERROR'
  * @type {String}
  */
 export const SET_NICKNAME = 'SET_NICKNAME'
+
+/**
+ * Add entry to conversation history
+ * @type {String}
+ */
+export const ADD_HISTORY = 'ADD_HISTORY'

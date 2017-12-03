@@ -1,0 +1,19 @@
+
+#chat-history
+    padding-right 10px
+    height 600px
+    min-height @height
+    max-height @height
+    overflow-x hidden
+    overflow-y scroll
+    // border 1px solid #ccc
+    
+    li
+        word-wrap break-word
+        
+        .nickname-incoming
+            color saturation(red, 60%)
+        
+        .nickname-outgoing
+            color saturation(blue, 60%)
+    
