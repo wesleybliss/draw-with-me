@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "bootstrap": "^4.0.0-beta.2",
-    "harp": "^0.25.0",
     "history": "^4.7.2",
     "mime-types": "^2.1.17",
     "prop-types": "^15.6.0",
