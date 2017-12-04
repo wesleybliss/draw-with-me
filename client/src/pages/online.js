@@ -172,8 +172,15 @@ class Online extends Component {
         if (!window.WebSocket)
             return window.alert('It looks like your browser doesn\'t support WebSockets =(')
         
+        // Thank Heroku for this
+        const address =
+            window.location.host.includes('.local') ||
+            window.location.host.includes('localhost')
+                ? 'ws://0.0.0.0:8080'
+                : 'https://wb-dwm-api.herokuapp.com'
+        
         try {
-            const ws = new WebSocket('ws://0.0.0.0:8080')
+            const ws = new WebSocket(address)
             this.props.actions.setWs(ws)
             ws.onopen = this.handleWsOpen
             ws.onerror = this.handleWsError
