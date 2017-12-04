@@ -62,10 +62,6 @@ const validUser = ws => {
         !ws.user.nickname.startsWith('__system__'))
         return true
     
-    /*ws.send(JSON.stringify({
-        error: 'NOIDENT',
-        message: 'You must identify yourself'
-    }))*/
     ws.send(Payloads.NoIdent())
     
     return false
@@ -82,9 +78,6 @@ const handleIdent = (ws, data) => {
 const handleRoster = (ws, data) => {
     const users = getRoster()
     _i(chalk.yellow('OUTGOING'), 'Roster (' + users.length, 'users)')
-    /*ws.send(JSON.stringify({
-        roster: users
-    }))*/
     ws.send(Payloads.Roster(users))
 }
 
@@ -110,9 +103,6 @@ const handleChat = (ws, event, data) => {
     }
     
     _w('Unsupported chat event', event)
-    /*return ws.send(JSON.stringify({
-        error: `Unsupported chat event ${event}`
-    }))*/
     ws.send(Payloads.UnsupportedChatEvent)
     
 }
@@ -143,9 +133,11 @@ wss.on('connection', ws => {
     
     ws.on('message', message => {
         
-        // Keepalive (not logged)
-        if (message === 'PING')
+        // Keepalive
+        if (message === 'PING') {
+            _f('PING')
             return ws.send('PONG')
+        }
         
         _i(chalk.green('INCOMING'), message)
         
