@@ -101,15 +101,13 @@ class Draw extends Component {
         const { ctx } = this.state
         switch (type) {
             case DrawTypes.Down:
-                ctx.beginPath()
                 ctx.moveTo(x, y)
                 break
             case DrawTypes.Up:
-                ctx.lineTo(x, y)
-                ctx.stroke()
                 break
             case DrawTypes.Move:
-                ctx.closePath()
+                ctx.lineTo(x, y)
+                ctx.stroke()
                 break
             default:
                 console.error('Invalid draw type')
