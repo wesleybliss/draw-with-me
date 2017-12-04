@@ -2,14 +2,16 @@ import {
     SET_WS,
     SET_WS_ERROR,
     SET_ONLINE,
-    SET_NICKNAME
+    SET_NICKNAME,
+    SET_ROSTER
 } from '../action-types'
 
 const initialState = {
     ws: null,
     wsError: null,
     online: false,
-    nickname: ''
+    nickname: '',
+    roster: []
 }
 
 const app = (state = initialState, { type, payload }) => {
@@ -38,6 +40,12 @@ const app = (state = initialState, { type, payload }) => {
             return {
                 ...state,
                 nickname: payload
+            }
+        
+        case SET_ROSTER:
+            return {
+                ...state,
+                roster: payload
             }
         
         default:

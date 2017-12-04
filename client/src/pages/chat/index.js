@@ -6,7 +6,12 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as appActions from '../../redux/actions/app'
 import * as chatActions from '../../redux/actions/chat'
-import { wsSelector, nicknameSelector, chatSelector } from '../../redux/selectors'
+import {
+    wsSelector,
+    nicknameSelector,
+    rosterSelector,
+    chatSelector
+} from '../../redux/selectors'
 import { push } from 'react-router-redux'
 import * as Payloads from './payloads'
 
@@ -14,6 +19,7 @@ const mapStateToProps = state => {
     return {
         ws: wsSelector(state),
         nickname: nicknameSelector(state),
+        roster: rosterSelector(state),
         chat: chatSelector(state)
     }
 }
@@ -39,7 +45,7 @@ class Chat extends Component {
         (entry.incoming ? 'incoming' : 'outgoing')
     
     rosterToList = () =>
-        this.props.chat.roster
+        this.props.roster
             .map((entry, index) => pug`
                 li.list-group-item(key = index.toString())
                     | ${entry.nickname} 
@@ -188,38 +194,40 @@ class Chat extends Component {
         
         return pug`
             
-            //- .row: .col: pre: code ${ JSON.stringify(this.props.chat, null, '    ') }
-            
-            .row
-                .col
-                    p
-                        | Chatting as ${ nickname }. 
-                        button.btn.d-inline(onClick = () => window.location.reload()) ↻
-            
-            .row
-                .col-8
-                    h5 Conversation History
-                    ul#chat-history.list-group(ref = "chatHistory")
-                        =${ this.historyToList() }
-                .col-4
-                    h5 Users In This Chat
-                    ul.list-group
-                        =${ this.rosterToList() }
-            
-            .row.mt-2
-                .col-8
-                    form(onSubmit = this.handleSendMessage)
-                        .form-group
-                            input.form-control(
-                                ref = el => el && el.focus(),
-                                type = "text",
-                                placeholder = "What's on your mind?",
-                                value = pendingMessage,
-                                onChange = this.handleChangePendingMessage
-                            )
-                        button.btn.btn-success(
-                            onClick = this.handleSendMessage)
-                            | Start Talking
+            .container
+                
+                //- .row: .col: pre: code ${ JSON.stringify(this.props.chat, null, '    ') }
+                
+                .row
+                    .col
+                        p
+                            | Chatting as ${ nickname }. 
+                            button.btn.d-inline(onClick = () => window.location.reload()) ↻
+                
+                .row
+                    .col-8
+                        h5 Conversation History
+                        ul#chat-history.list-group(ref = "chatHistory")
+                            =${ this.historyToList() }
+                    .col-4
+                        h5 Users In This Chat
+                        ul.list-group
+                            =${ this.rosterToList() }
+                
+                .row.mt-2
+                    .col-8
+                        form(onSubmit = this.handleSendMessage)
+                            .form-group
+                                input.form-control(
+                                    ref = el => el && el.focus(),
+                                    type = "text",
+                                    placeholder = "What's on your mind?",
+                                    value = pendingMessage,
+                                    onChange = this.handleChangePendingMessage
+                                )
+                            button.btn.btn-success(
+                                onClick = this.handleSendMessage)
+                                | Start Talking
             
             `
         
@@ -232,9 +240,9 @@ class Chat extends Component {
 Chat.propTypes = {
     ws: PropTypes.object,
     nickname: PropTypes.string.isRequired,
+    roster: PropTypes.array.isRequired,
     chat: PropTypes.shape({
         started: PropTypes.bool.isRequired,
-        roster: PropTypes.array.isRequired,
         history: PropTypes.array.isRequired
     })
 }

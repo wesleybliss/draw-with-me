@@ -4,5 +4,6 @@ export const wsSelector = state => state.app.ws
 export const wsErrorSelector = state => state.app.wsError
 export const nicknameSelector = state => state.app.nickname
 export const onlineSelector = state => state.app.online
+export const rosterSelector = state => state.app.roster
 
 export const chatSelector = state => state.chat

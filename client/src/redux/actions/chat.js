@@ -1,6 +1,5 @@
 import {
     SET_STARTED,
-    SET_ROSTER,
     ADD_HISTORY
 } from '../action-types'
 
@@ -9,14 +8,6 @@ export const setStarted = started => dispatch => {
     dispatch({
         type: SET_STARTED,
         payload: started
-    })
-}
-
-export const setRoster = roster => dispatch => {
-    console.log('DISPATCH', SET_ROSTER, roster)
-    dispatch({
-        type: SET_ROSTER,
-        payload: roster
     })
 }
 

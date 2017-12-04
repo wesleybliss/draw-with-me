@@ -5,13 +5,11 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import * as appActions from '../redux/actions/app'
-// import * as chatActions from '../redux/actions/chat'
 import {
     wsSelector,
     wsErrorSelector,
     onlineSelector,
-    nicknameSelector/*,
-    chatSelector*/
+    nicknameSelector
 } from '../redux/selectors'
 import * as Payloads from './chat/payloads'
 import Chat from './chat'
@@ -22,16 +20,14 @@ const mapStateToProps = (state/*, ownProps*/) => {
         ws: wsSelector(state),
         wsError: wsErrorSelector(state),
         online: onlineSelector(state),
-        nickname: nicknameSelector(state)/*,
-        chat: chatSelector(state)*/
+        nickname: nicknameSelector(state)
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
         actions: {
-            ...bindActionCreators(appActions, dispatch)/*,
-            ...bindActionCreators(chatActions, dispatch)*/
+            ...bindActionCreators(appActions, dispatch)
         }
     }
 }
@@ -205,13 +201,9 @@ class Online extends Component {
             return window.alert('@todo notification -- invalid nickname')
         }
         // Update the store
-        console.log('**** ', this.props.actions.setNickname)
         this.props.actions.setNickname(this.state.nickname)
         // IDENT
         this.identify()
-        // Start the chat
-        // this.props.actions.setStarted(true)
-        // return false
     }
     
     handleChangeNickname = e =>
