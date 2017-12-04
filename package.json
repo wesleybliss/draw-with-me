@@ -1,0 +1,14 @@
+{
+  "name": "draw-with-me",
+  "version": "1.0.0",
+  "description": "@todo",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm run build:client",
+    "build:client": "cd client && npm run clean && npm run build && cp ../harp.json dist/"
+  },
+  "engines": {
+    "node": ">=8.6.0",
+    "npm": ">=5.5.1"
+  }
+}
