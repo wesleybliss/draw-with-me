@@ -13,6 +13,12 @@ import {
 import * as Payloads from './payloads'
 import { Roster as RosterPayload } from '../chat/payloads'
 
+const DrawTypes = {
+    Down: 0,
+    Up: 1,
+    Move: 2
+}
+
 const mapStateToProps = state => {
     return {
         ws: wsSelector(state),
@@ -91,29 +97,58 @@ class Draw extends Component {
         return { x, y }
     }
     
+    draw = (type, x, y) => {
+        const { ctx } = this.state
+        switch (type) {
+            case DrawTypes.Down:
+                ctx.beginPath()
+                ctx.moveTo(x, y)
+                break
+            case DrawTypes.Up:
+                ctx.lineTo(x, y)
+                ctx.stroke()
+                break
+            case DrawTypes.Move:
+                ctx.closePath()
+                break
+            default:
+                console.error('Invalid draw type')
+        }
+    }
+    
     handleMouseDown = e => {
-        e.preventDefault()
+        if (e.preventDefault) e.preventDefault()
         const { x, y } = this.getDrawPoint(e)
-        this.state.ctx.moveTo(x, y)
+        this.draw(DrawTypes.Down, x, y)
         this.state.drawing = true
+        this.props.ws.send(Payloads.MouseDown(x, y))
     }
     
     handleMouseUp = e => {
-        e.preventDefault()
+        if (e.preventDefault) e.preventDefault()
+        const { x, y } = this.getDrawPoint(e)
+        this.draw(DrawTypes.Up, x, y)
         this.state.drawing = false
+        this.props.ws.send(Payloads.MouseUp(x, y))
     }
     
     handleMouseMove = e => {
-        
         // Don't draw unless mouse is down
         if (!this.state.drawing) return
-        
-        const { ctx } = this.state
         const { x, y } = this.getDrawPoint(e)
-        
-        ctx.lineTo(x, y)
-        ctx.stroke()
-        
+        this.draw(DrawTypes.Move, x, y)
+        this.props.ws.send(Payloads.MouseMove(x, y))
+    }
+    
+    handleRemoteDraw = data => {
+        const event = data.event.split('.').slice(1).join('.')
+        const { x, y } = data.data
+        switch (event) {
+            case 'mouse.down': return this.draw(DrawTypes.Down, x, y)
+            case 'mouse.up': return this.draw(DrawTypes.Up, x, y)
+            case 'mouse.move': return this.draw(DrawTypes.Move, x, y)
+            default: console.warn('Unknown remote draw event')
+        }
     }
     
     componentDidMount() {
@@ -154,10 +189,8 @@ class Draw extends Component {
             if (data.roster)
                 return this.props.actions.setRoster(data.roster)
             
-            this.props.actions.addHistory({
-                incoming: data.nickname === this.props.nickname,
-                ...data
-            })
+            if (data.event && data.event.startsWith('draw.'))
+                return this.handleRemoteDraw(data)
             
         }
         

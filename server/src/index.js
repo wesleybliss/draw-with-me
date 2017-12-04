@@ -37,6 +37,15 @@ wss.broadcast = data => {
     })
 }
 
+wss.broadcastExcludeSelf = (ws, data) => {
+    wss.clients.forEach(client => {
+        if (client !== ws && client.readyState === WebSocket.OPEN)
+            client.send(
+                (typeof data !== 'object')
+                    ? data : JSON.stringify(data))
+    })
+}
+
 const getRoster = () => {
     const users = []
     wss.clients.forEach(client => { users.push(client.user) })
@@ -108,7 +117,8 @@ const handleChat = (ws, event, data) => {
 }
 
 const handleDraw = (ws, event, data) => {
-    _w('@todo handleDraw')
+    // _w('@todo handleDraw')
+    wss.broadcastExcludeSelf(ws, data)
 }
 
 wss.on('connection', ws => {
@@ -168,7 +178,7 @@ wss.on('connection', ws => {
         
         switch (type) {
             case 'chat': return handleChat(ws, event, message.data)
-            case 'draw': return handleDraw(ws, event, message.data)
+            case 'draw': return handleDraw(ws, event, message)
         }
         
         _w('Unsupported event', type, event)
