@@ -9,7 +9,7 @@
   },
   "engines": {
     "node": ">=8.x",
-    "npm": ">=5.x"
+    "npm": ">5.5.1"
   },
   "devDependencies": {
     "nwb": "^0.20.0"
