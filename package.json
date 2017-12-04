@@ -14,5 +14,8 @@
   },
   "devDependencies": {
     "nwb": "^0.20.0"
+  },
+  "dependencies": {
+    "harp": "^0.25.0"
   }
 }
