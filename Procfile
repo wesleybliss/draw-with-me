@@ -1,1 +1,1 @@
-web: heroku.sh
+web: echo $PWD && ./heroku.sh
