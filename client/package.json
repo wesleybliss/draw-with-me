@@ -33,5 +33,9 @@
   },
   "author": "",
   "license": "MIT",
-  "repository": ""
+  "repository": "",
+  "engines": {
+    "node": ">=8.x",
+    "npm": ">5.5.1"
+  },
 }
