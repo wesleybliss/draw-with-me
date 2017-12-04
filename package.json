@@ -4,8 +4,9 @@
   "description": "@todo",
   "private": true,
   "scripts": {
-    "postinstall": "npm run build:client",
-    "build:client": "cd client && npm run clean && npm run build && cp ../harp.json dist/"
+    "postinstall": "npm run build:server && npm run build:client",
+    "build:server": "cd server && npm install",
+    "build:client": "cd client && npm install && npm run clean && npm run build && cp ../harp.json dist/"
   },
   "engines": {
     "node": ">=8.x",
