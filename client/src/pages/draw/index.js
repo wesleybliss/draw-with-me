@@ -13,6 +13,8 @@ import {
 import * as Payloads from './payloads'
 import { Roster as RosterPayload } from '../chat/payloads'
 
+// Interesting https://eloquentjavascript.net/16_canvas.html
+
 const DrawTypes = {
     Down: 0,
     Up: 1,

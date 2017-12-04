@@ -177,7 +177,7 @@ class Online extends Component {
             window.location.host.includes('.local') ||
             window.location.host.includes('localhost')
                 ? 'ws://0.0.0.0:8080'
-                : 'https://wb-dwm-api.herokuapp.com'
+                : 'wss://wb-dwm-api.herokuapp.com'
         
         try {
             const ws = new WebSocket(address)
