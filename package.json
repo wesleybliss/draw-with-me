@@ -15,5 +15,7 @@
   "devDependencies": {
     "nwb": "^0.20.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "sabu": "^1.0.6"
+  }
 }

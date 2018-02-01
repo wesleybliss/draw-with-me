@@ -1,7 +1,7 @@
 {
     "source": "./dist",
     "host": "0.0.0.0",
-    "port": 3000,
+    "port": 8080,
     "cors": {
         "preflightMaxAge": 5,
         "origins": ["*"],
@@ -12,8 +12,5 @@
             "Access-Control-Allow-Headers"
         ],
         "exposeHeaders": ["API-Token-Expiry"]
-    },
-    "routes": {
-        "/": "dist/index.html"
     }
 }

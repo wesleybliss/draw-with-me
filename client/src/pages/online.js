@@ -175,7 +175,8 @@ class Online extends Component {
         // Thank Heroku for this
         const address =
             window.location.host.includes('.local') ||
-            window.location.host.includes('localhost')
+            window.location.host.includes('localhost') ||
+            window.location.host.includes('0.0.0.0')
                 ? 'ws://0.0.0.0:8080'
                 : 'wss://wb-dwm-api.herokuapp.com'
         
